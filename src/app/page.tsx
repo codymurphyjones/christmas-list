@@ -30,23 +30,34 @@ function parsePrice(priceStr: string | undefined): number {
 
 export default function Home() {
   const [sortBy, setSortBy] = useState<'none' | 'priority' | 'price-asc' | 'price-desc'>('none');
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>(
+    Object.keys(wishlistData).reduce((acc, key) => ({ ...acc, [key]: true }), {})
+  );
+
+  const toggleSection = (website: string) => {
+    setExpandedSections(prev => ({ ...prev, [website]: !prev[website] }));
+  };
 
   const sortItems = (items: WishlistItem[]) => {
     const itemsCopy = [...items];
     
     switch (sortBy) {
       case 'priority':
-        return itemsCopy.sort((a, b) => {
+         return itemsCopy.sort((a, b) => {
           const priorityA = a.priority ? priorityOrder[a.priority] : 999;
           const priorityB = b.priority ? priorityOrder[b.priority] : 999;
-          return priorityA - priorityB;
+          return priorityB - priorityA;
         });
       case 'price-asc':
         return itemsCopy.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
       case 'price-desc':
         return itemsCopy.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
       default:
-        return itemsCopy;
+         return itemsCopy.sort((a, b) => {
+          const priorityA = a.priority ? priorityOrder[a.priority] : 999;
+          const priorityB = b.priority ? priorityOrder[b.priority] : 999;
+          return priorityA - priorityB;
+        });
     }
   };
   return (
@@ -73,7 +84,7 @@ export default function Home() {
             >
               Default
             </button>
-            <button
+             <button
               onClick={() => setSortBy('priority')}
               className={`px-4 py-2 rounded font-medium transition-colors ${
                 sortBy === 'priority'
@@ -81,7 +92,7 @@ export default function Home() {
                   : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-600'
               }`}
             >
-              Priority
+              Priority: High to Low
             </button>
             <button
               onClick={() => setSortBy('price-asc')}
@@ -112,12 +123,24 @@ export default function Home() {
               key={website}
               className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg overflow-hidden"
             >
-              <div className={`${websiteColors[website]} p-6`}>
+              <button
+                onClick={() => toggleSection(website)}
+                className={`${websiteColors[website]} p-6 w-full text-left flex items-center justify-between hover:opacity-90 transition-opacity`}
+              >
                 <h2 className="text-3xl font-bold text-white">
                   {websiteNames[website]}
                 </h2>
-              </div>
+                <svg
+                  className={`w-8 h-8 text-white transition-transform ${expandedSections[website] ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
               
+              {expandedSections[website] && (
               <div className="p-6">
                 <div className="grid gap-4 md:grid-cols-2">
                   {sortItems(items).map((item: WishlistItem, index: number) => (
@@ -160,6 +183,7 @@ export default function Home() {
                   ))}
                 </div>
               </div>
+              )}
             </section>
           ))}
         </div>
