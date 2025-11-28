@@ -134,8 +134,8 @@ export const wishlistData: WishlistData = {
   },
   {
     "name": "Fabricate",
-    "url": "https://www.cardkingdom.com/mtg/magic-2010/fabricate",
-    "price": "$5.99"
+    "url": "https://www.cardkingdom.com/mtg/mirrodin/fabricate",
+    "price": "$7.19"
   },
   {
     "name": "Faerie Mastermind",
